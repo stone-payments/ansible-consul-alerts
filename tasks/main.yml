@@ -1,0 +1,39 @@
+---
+- name: install Golang
+  package:
+    name: golang
+    state: present
+
+- name: configure go variables
+  template:
+    src: golang.sh.j2
+    dest: /etc/profile.d/golang.sh
+    mode: "0755"
+
+- name: create go folders
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  with_items:
+    - "/usr/local/go"
+    - "/usr/local/go/bin"
+    - "/usr/local/go/src"
+
+- name: synchronize consul-alerts repo
+  git:
+    repo: "https://github.com/AcalephStorage/consul-alerts.git"
+    dest: "/usr/local/go/src/github.com/AcalephStorage/consul-alerts"
+    version: "{{ consulAlerts_version }}"
+    update: true
+  register: newRelease
+
+- name: build and install consul-alerts
+  shell: "cd /usr/local/go/src/github.com/AcalephStorage/consul-alerts && GOPATH=/usr/local/go GOBIN=/usr/local/go/bin go install"
+  when: newRelease.changed or consulAlerts_reinstall is defined
+
+- name: ensure executable files
+  file:
+    path: "/usr/local/go/bin/consul-alerts"
+    owner: root
+    mode: "0755"
