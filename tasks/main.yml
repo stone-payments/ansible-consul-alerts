@@ -16,3 +16,24 @@
     path: "/usr/local/go/bin/consul-alerts"
     owner: root
     mode: "0755"
+
+- name: copy service file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: "consul-alerts.service.j2"
+      dest: "/etc/systemd/system/consul-alerts.service"
+    - src: "consul-alerts.j2"
+      dest: "/etc/sysconfig/consul-alerts"
+  notify:
+    - reload systemd
+    - restart consul-alerts
+
+- meta: flush_handlers
+
+- name: ensure service started
+  service:
+    name: consul-alerts
+    state: started
+    enabled: true

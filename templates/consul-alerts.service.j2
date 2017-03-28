@@ -1,0 +1,24 @@
+[Unit]
+Description=Consul Alerts
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ consulAlerts_user }}
+Group={{ consulAlerts_group }}
+EnvironmentFile=/etc/sysconfig/consul-alerts
+ExecStart=/usr/local/go/bin/consul-alerts start \
+    --consul-acl-token=${TOKEN} \
+    --alert-addr=${ADDRALERT} \
+    --consul-addr=${ADDRCONSUL} \
+    --consul-dc=${DC} \
+    --watch-events --watch-checks \
+    --log-level=debug
+StandardOutput=syslog
+StandardError=syslog
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target

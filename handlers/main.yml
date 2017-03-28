@@ -1,0 +1,9 @@
+---
+- name: reload systemd
+  shell: sytemctl daemon-reload
+
+- name: restart consul-alerts
+  service:
+    name: consul-alerts
+    state: restarted
+    enabled: true
