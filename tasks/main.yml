@@ -8,7 +8,7 @@
   register: newRelease
 
 - name: build and install consul-alerts
-  shell: "cd /usr/local/go/src/github.com/AcalephStorage/consul-alerts && go get && go install"
+  shell: "export GOPATH=/usr/local/go && export GOBIN=${GOPATH}/bin && cd /usr/local/go/src/github.com/AcalephStorage/consul-alerts && go get && go install"
   when: newRelease.changed or consulAlerts_reinstall is defined
 
 - name: ensure executable files
